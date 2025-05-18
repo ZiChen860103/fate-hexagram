@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>命卦計算器</title>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(to bottom right, #f0f9ff, #dff2ff);
+      color: #333;
+      padding: 2em;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      background: white;
+      padding: 2em 3em;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #1e88e5;
+    }
+    label {
+      margin-top: 1em;
+      display: block;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5em;
+      margin-top: 0.5em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+    button {
+      margin-top: 1.5em;
+      padding: 0.6em;
+      width: 100%;
+      font-size: 1.1em;
+      background: #1e88e5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #1565c0;
+    }
+    .result {
+      margin-top: 2em;
+      font-weight: bold;
+      white-space: pre-line;
+      background: #e3f2fd;
+      padding: 1em;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>命卦計算器</h1>
+    <label for="birthday">出生日期：</label>
+    <input type="date" id="birthday" required>
+
+    <label for="gender">性別：</label>
+    <select id="gender">
+      <option value="male">男性</option>
+      <option value="female">女性</option>
+    </select>
+
+    <button onclick="calculateMingua()">計算命卦</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+<script>
+    const lichunDates = {
+      1925: '1925-02-04', 1926: '1926-02-04', 1927: '1927-02-04',
+      1928: '1928-02-05', 1929: '1929-02-04', 1930: '1930-02-04',
+      1931: '1931-02-04', 1932: '1932-02-05', 1933: '1933-02-04',
+      1934: '1934-02-04', 1935: '1935-02-04', 1936: '1936-02-05',
+      1937: '1937-02-04', 1938: '1938-02-04', 1939: '1939-02-04',
+      1940: '1940-02-05', 1941: '1941-02-04', 1942: '1942-02-04',
+      1943: '1943-02-04', 1944: '1944-02-05', 1945: '1945-02-04',
+      1946: '1946-02-04', 1947: '1947-02-04', 1948: '1948-02-05',
+      1949: '1949-02-04', 1950: '1950-02-04', 1951: '1951-02-04',
+      1952: '1952-02-05', 1953: '1953-02-04', 1954: '1954-02-04',
+      1955: '1955-02-04', 1956: '1956-02-05', 1957: '1957-02-04',
+      1958: '1958-02-04', 1959: '1959-02-04', 1960: '1960-02-05',
+      1961: '1961-02-04', 1962: '1962-02-04', 1963: '1963-02-04',
+      1964: '1964-02-05', 1965: '1965-02-04', 1966: '1966-02-04',
+      1967: '1967-02-04', 1968: '1968-02-05', 1969: '1969-02-04',
+      1970: '1970-02-04', 1971: '1971-02-04', 1972: '1972-02-05',
+      1973: '1973-02-04', 1974: '1974-02-04', 1975: '1975-02-04',
+      1976: '1976-02-05', 1977: '1977-02-04', 1978: '1978-02-04',
+      1979: '1979-02-04', 1980: '1980-02-05', 1981: '1981-02-04',
+      1982: '1982-02-04', 1983: '1983-02-04', 1984: '1984-02-05',
+      1985: '1985-02-04', 1986: '1986-02-04', 1987: '1987-02-04',
+      1988: '1988-02-04', 1989: '1989-02-04', 1990: '1990-02-04',
+      1991: '1991-02-04', 1992: '1992-02-04', 1993: '1993-02-04',
+      1994: '1994-02-04', 1995: '1995-02-04', 1996: '1996-02-04',
+      1997: '1997-02-04', 1998: '1998-02-04', 1999: '1999-02-04',
+      2000: '2000-02-04', 2001: '2001-02-04', 2002: '2002-02-04',
+      2003: '2003-02-04', 2004: '2004-02-04', 2005: '2005-02-04',
+      2006: '2006-02-04', 2007: '2007-02-04', 2008: '2008-02-04',
+      2009: '2009-02-04', 2010: '2010-02-04', 2011: '2011-02-04',
+      2012: '2012-02-04', 2013: '2013-02-04', 2014: '2014-02-04',
+      2015: '2015-02-04', 2016: '2016-02-04', 2017: '2017-02-03',
+      2018: '2018-02-04', 2019: '2019-02-04', 2020: '2020-02-04',
+      2021: '2021-02-03', 2022: '2022-02-04', 2023: '2023-02-04',
+      2024: '2024-02-04', 2025: '2025-02-03',
+    };
+
+    const kuaMap = {
+      1: '坎卦', 2: '坤卦', 3: '震卦', 4: '巽卦',
+      5: { male: '坤卦', female: '艮卦' },
+      6: '乾卦', 7: '兌卦', 8: '艮卦', 9: '離卦'
+    };
+
+    const directions = {
+      坎卦: { 生氣: '巽', 天醫: '震', 延年: '離' },
+      坤卦: { 生氣: '艮', 天醫: '兌', 延年: '乾' },
+      震卦: { 生氣: '離', 天醫: '坎', 延年: '巽' },
+      巽卦: { 生氣: '坎', 天醫: '離', 延年: '震' },
+      乾卦: { 生氣: '兌', 天醫: '艮', 延年: '坤' },
+      兌卦: { 生氣: '乾', 天醫: '坤', 延年: '艮' },
+      艮卦: { 生氣: '坤', 天醫: '乾', 延年: '兌' },
+      離卦: { 生氣: '震', 天醫: '巽', 延年: '坎' },
+    };
+
+    function calculateMingua() {
+      const birthStr = document.getElementById("birthday").value;
+      const gender = document.getElementById("gender").value;
+      const resultDiv = document.getElementById("result");
+
+      if (!birthStr) {
+        resultDiv.innerText = '請輸入出生日期';
+        return;
+      }
+
+      const birthDate = new Date(birthStr);
+      let year = birthDate.getFullYear();
+
+      if (!lichunDates[year]) {
+        resultDiv.innerText = `不支援 ${year} 年的立春資料。`;
+        return;
+      }
+
+      const lichun = new Date(lichunDates[year]);
+      if (birthDate < lichun) year--;
+
+      const y = year % 100;
+      let total = Math.floor(y / 10) + (y % 10);
+      while (total > 9) total = Math.floor(total / 10) + (total % 10);
+
+      let kuaNum, kua;
+      if (gender === 'male') {
+        kuaNum = 10 - total;
+        if (kuaNum === 5) kua = kuaMap[5].male;
+        else kua = kuaMap[kuaNum];
+      } else {
+        kuaNum = total + 5;
+        if (kuaNum > 9) kuaNum = Math.floor(kuaNum / 10) + (kuaNum % 10);
+        if (kuaNum === 5) kua = kuaMap[5].female;
+        else kua = kuaMap[kuaNum];
+      }
+
+      const dir = directions[kua];
+      if (!dir) {
+        resultDiv.innerText = `無法找到對應的吉方資料。`;
+        return;
+      }
+
+      resultDiv.innerText =
+        `命卦：${kua}\n生氣：${dir.生氣}\n天醫：${dir.天醫}\n延年：${dir.延年}`;
+    }
+  </script>
+</body>
+</html>
