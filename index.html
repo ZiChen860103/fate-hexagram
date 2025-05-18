@@ -81,6 +81,7 @@
   </div>
 
 <script>
+	//每年立春日期
   const lichunDates = {
     1925: '1925-02-04', 1926: '1926-02-04', 1927: '1927-02-04', 1928: '1928-02-05',
     1929: '1929-02-04', 1930: '1930-02-04', 1931: '1931-02-04', 1932: '1932-02-05',
@@ -128,52 +129,76 @@
     離卦: { 生氣: '震', 天醫: '巽', 延年: '坎' },
   };
 
+  // 對應 12 地支的生肖（以 0 為猴，1 為雞，依此類推）
+  const zodiacList = ['猴', '雞', '狗', '豬', '鼠', '牛', '虎', '兔', '龍', '蛇', '馬', '羊'];
+
+  // 傳回生肖名稱
+  function getZodiac(year) {
+    return zodiacList[year % 12];
+  }
+
   function calculateMingua() {
     const birthStr = document.getElementById("birthday").value;
     const gender = document.getElementById("gender").value;
     const resultDiv = document.getElementById("result");
 
+	    // 檢查是否有輸入出生日期
     if (!birthStr) {
       resultDiv.innerText = '請輸入出生日期';
       return;
     }
 
+	    // 將輸入字串轉換為 Date 物件
     const birthDate = new Date(birthStr);
     let year = birthDate.getFullYear();
 
+	    // 取得該年份的立春日期字串
     const lichunStr = lichunDates[year];
     if (!lichunStr) {
       resultDiv.innerText = `缺少 ${year} 年的立春資料`;
       return;
     }
 
+	    // 將立春日期字串轉換為 Date 物件
     const lichunDate = new Date(lichunStr);
+	  // 若生日在立春前，命卦與生肖都屬前一年
     if (birthDate < lichunDate) {
-      year -= 1;
-    }
+		year -= 1;
+	}
 
+	    // 取得生肖名稱
+    const zodiac = getZodiac(year); 
+	    // 取得西元年後兩位數（例如 1987 → 87）
     const y = year % 100;
     let remainder;
 
+	   // 命卦算法：依性別與出生年代前後採不同公式
     if (year < 2000) {
+		    // 西元2000年以前：男性為 100 - y，女性為 y + 5
       remainder = gender === 'male' ? 100 - y : y + 5;
     } else {
+		    // 西元2000年以後：男性為 99 - y，女性為 y + 6
       remainder = gender === 'male' ? 99 - y : y + 6;
     }
 
+	  // 最後將數值對 9 取餘數（並將 0 視為 9）
     remainder = remainder % 9;
     if (remainder === 0) remainder = 9;
 
+	  // 查表取得命卦對應文字（5號命卦依性別不同
     let kua = remainder === 5 ? kuaMap[5][gender] : kuaMap[remainder];
 
+	    // 若找不到對應卦象或吉方，顯示錯誤
     if (!kua || !directions[kua]) {
       resultDiv.innerText = `無法找到對應的吉方資料（命卦：${remainder}）。`;
       return;
     }
 
+	    // 取得對應出生日期的命卦資料
     const dir = directions[kua];
+	  // 顯示結果（命卦、生氣、天醫、延年）
     resultDiv.innerText =
-      `命卦：${kua}\n生氣：${dir.生氣}\n天醫：${dir.天醫}\n延年：${dir.延年}`;
+      `生肖：${zodiac}\n命卦：${kua}\n生氣：${dir.生氣}\n天醫：${dir.天醫}\n延年：${dir.延年}`;
   }
 </script>
 </body>
